@@ -1,13 +1,22 @@
 import axios from 'axios';
 
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname
-    ? `http://${window.location.hostname}:5000/api`
-    : '/api');
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // Local / LAN testing only
+    if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('10.') || host.startsWith('192.168.')) {
+      return `http://${host}:5000/api`;
+    }
+  }
+  // Production / Vercel / Render cloud
+  return '/api';
+};
 
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json'
   }
