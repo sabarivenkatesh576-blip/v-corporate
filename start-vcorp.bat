@@ -1,21 +1,19 @@
-﻿@echo off
-title V-CORP — Virtual Corporate Ecosystem (SIH 2026)
-echo =========================================================================
-echo   V-CORP — Virtual Corporate Experience & Career Readiness Platform
-echo   Smart India Hackathon 2026 Edition
-echo =========================================================================
-echo.
-echo [1/3] Ensuring Node.js environment...
-set PATH=C:\Program Files\nodejs;%PATH%
-
-echo [2/3] Checking MongoDB and dependencies...
+@echo off
 cd /d "%~dp0"
-
-echo [3/3] Launching Full-Stack Services (Backend: Port 5000 | Frontend: Port 5173)...
+title V-CORP Career Readiness Platform
+echo ====================================================
+echo   Starting V-CORP Local Server...
+echo ====================================================
 echo.
-echo Point your browser to http://localhost:5173
-echo Demo Student Login: demo@vcorp.local / Demo@12345
-echo Demo Admin Login:   admin@vcorp.local / Admin@12345
+echo Launching backend and frontend services...
+start "V-CORP Server" cmd /k "npm run dev"
+echo Waiting for services to initialize...
+timeout /t 4 /nobreak > nul
+echo Opening Portal in Browser...
+start http://localhost:5173
 echo.
-npm run dev
-pause
+echo ====================================================
+echo   V-CORP is running at http://localhost:5173
+echo   (Keep the "V-CORP Server" window open while using)
+echo ====================================================
+timeout /t 3 > nul

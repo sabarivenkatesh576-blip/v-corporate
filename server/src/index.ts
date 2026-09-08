@@ -74,6 +74,10 @@ app.use('/api/internships', internshipRoutes);
 app.use('/api/communication', communicationRoutes);
 app.use('/api/gamification', gamificationRoutes);
 
+// Static client build serving
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -81,6 +85,16 @@ app.get('/api/health', (req, res) => {
     app: 'V-CORP Virtual Corporate Experience Platform',
     timestamp: new Date().toISOString(),
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Single-page application fallback for client routes
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) {
+    return next();
+  }
+  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+    if (err) next();
   });
 });
 

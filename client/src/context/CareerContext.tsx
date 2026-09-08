@@ -114,14 +114,27 @@ const ROLES: CareerRoleInfo[] = [
 ];
 
 const DEFAULT_HIRING_ROUNDS: HiringRound[] = [
-  { id: 'r1', roundNumber: 1, title: 'Eligibility & Profile Screening', description: 'Verification of academic criteria, CGPA eligibility, and target role prerequisites.', durationMinutes: 10, cutOffScore: 70, completed: true, score: 90, feedback: 'Profile verified and matched successfully.' },
-  { id: 'r2', roundNumber: 2, title: 'Cognitive Aptitude & Logical Reasoning', description: 'Quantitative problem solving, pattern recognition, and data interpretation test.', durationMinutes: 30, cutOffScore: 75, completed: true, score: 85, feedback: 'Strong quantitative and reasoning performance.' },
+  { id: 'r1', roundNumber: 1, title: 'Eligibility & Profile Screening', description: 'Verification of academic criteria, CGPA eligibility, and target role prerequisites.', durationMinutes: 10, cutOffScore: 70, completed: false },
+  { id: 'r2', roundNumber: 2, title: 'Cognitive Aptitude & Logical Reasoning', description: 'Quantitative problem solving, pattern recognition, and data interpretation test.', durationMinutes: 30, cutOffScore: 75, completed: false },
   { id: 'r3', roundNumber: 3, title: 'Role Technical & Domain Assessment', description: 'Role-specific domain assessment covering Excel modeling, SQL, and practical problem solving.', durationMinutes: 45, cutOffScore: 75, completed: false },
   { id: 'r4', roundNumber: 4, title: 'Corporate Communication & Business Email', description: 'Workplace writing, stakeholder email drafting, and executive summary formulation.', durationMinutes: 25, cutOffScore: 70, completed: false },
   { id: 'r5', roundNumber: 5, title: 'Case Study & Problem Statement', description: 'Comprehensive enterprise business scenario requiring diagnosis, root-cause analysis, and presentation.', durationMinutes: 60, cutOffScore: 80, completed: false },
   { id: 'r6', roundNumber: 6, title: 'Behavioral & STAR Technical Viva', description: 'Multi-turn conversational interview testing leadership, situation handling, and culture fit.', durationMinutes: 30, cutOffScore: 75, completed: false },
   { id: 'r7', roundNumber: 7, title: 'Final Selection & Virtual Onboarding', description: 'Official corporate offer issuance, virtual company key handover, and workspace unlocking.', durationMinutes: 15, cutOffScore: 80, completed: false }
 ];
+
+const DEFAULT_CLEAN_INTERNSHIP: InternshipState = {
+  status: 'In Progress',
+  currentWeek: 1,
+  totalWeeks: 4,
+  completedWeeks: 0,
+  weeklyTasks: [
+    { week: 1, title: 'Enterprise SQL Pipeline & Account Analysis', description: 'Query corporate transaction records with GROUP BY and HAVING filters.', completed: false },
+    { week: 2, title: 'Interactive Spreadsheet Modeling & Anomaly Diagnosis', description: 'Calculate portfolio Gross Margin and aggregate Revenue in Excel.', completed: false },
+    { week: 3, title: 'Agile FRD & Anomaly Alert Specification', description: 'Draft user stories and define webhook alert latency for audit compliance.', completed: false },
+    { week: 4, title: 'DCF Valuation, Profit Recovery & Capstone Sign-off', description: 'Compute discounted cash flow valuation, sensitivity rate, and cost savings.', completed: false }
+  ]
+};
 
 const CareerContext = createContext<CareerContextType | undefined>(undefined);
 
@@ -147,26 +160,63 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const currentCompanyInfo = COMPANIES.find(c => c.name.toLowerCase() === selectedCompany.toLowerCase()) || COMPANIES[0];
   const currentRoleInfo = ROLES.find(r => r.title.toLowerCase() === targetRole.toLowerCase()) || ROLES[0];
 
-  const [hiringRounds, setHiringRounds] = useState<HiringRound[]>(DEFAULT_HIRING_ROUNDS);
-  const [activeRound, setActiveRound] = useState<number>(3);
+  const [hiringRounds, setHiringRounds] = useState<HiringRound[]>(() => {
+    try {
+      const saved = localStorage.getItem('vcorp_hiring_rounds');
+      if (saved) {
+        const parsed: HiringRound[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed[0]?.score === 90 && parsed[1]?.score === 85 && !parsed[2]?.completed) {
+          localStorage.setItem('vcorp_hiring_rounds', JSON.stringify(DEFAULT_HIRING_ROUNDS));
+          return DEFAULT_HIRING_ROUNDS;
+        }
+        return parsed;
+      }
+      return DEFAULT_HIRING_ROUNDS;
+    } catch {
+      return DEFAULT_HIRING_ROUNDS;
+    }
+  });
+
+  const [activeRound, setActiveRoundState] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('vcorp_active_round');
+      if (saved === '3') {
+        localStorage.setItem('vcorp_active_round', '1');
+        return 1;
+      }
+      return saved ? Number(saved) : 1;
+    } catch {
+      return 1;
+    }
+  });
+
+  const setActiveRound = (r: number) => {
+    setActiveRoundState(r);
+    localStorage.setItem('vcorp_active_round', String(r));
+  };
 
   const completeRound = (roundNum: number, score: number = 90, feedback: string = 'Passed with distinction!') => {
-    setHiringRounds(prev => prev.map(r => {
-      if (r.roundNumber === roundNum) {
-        return { ...r, completed: true, score, feedback };
-      }
-      return r;
-    }));
+    setHiringRounds(prev => {
+      const updated = prev.map(r => {
+        if (r.roundNumber === roundNum) {
+          return { ...r, completed: true, score, feedback };
+        }
+        return r;
+      });
+      localStorage.setItem('vcorp_hiring_rounds', JSON.stringify(updated));
+      return updated;
+    });
+    setActiveRound(Math.min(7, roundNum + 1));
   };
 
   const roleSkills: SkillGapItem[] = [
-    { name: 'Advanced Excel & Modeling', category: 'Technical', currentLevel: 75, requiredLevel: 90, gap: 15, priority: 'Critical' },
-    { name: 'SQL & Database Queries', category: 'Technical', currentLevel: 70, requiredLevel: 85, gap: 15, priority: 'Critical' },
-    { name: 'Power BI / Visual Dashboarding', category: 'Analytics', currentLevel: 65, requiredLevel: 80, gap: 15, priority: 'Critical' },
-    { name: 'Business Requirements (BRD/FRD)', category: 'Domain', currentLevel: 80, requiredLevel: 85, gap: 5, priority: 'Medium' },
-    { name: 'Stakeholder Communication', category: 'Soft Skills', currentLevel: 82, requiredLevel: 90, gap: 8, priority: 'Medium' },
-    { name: 'Financial & KPI Analysis', category: 'Finance', currentLevel: 60, requiredLevel: 80, gap: 20, priority: 'Critical' },
-    { name: 'Tally Prime & Ledger Accounting', category: 'Finance Operations', currentLevel: 65, requiredLevel: 75, gap: 10, priority: 'Medium' }
+    { name: 'Advanced Excel & Modeling', category: 'Technical', currentLevel: 50, requiredLevel: 90, gap: 40, priority: 'Critical' },
+    { name: 'SQL & Database Queries', category: 'Technical', currentLevel: 45, requiredLevel: 85, gap: 40, priority: 'Critical' },
+    { name: 'Power BI / Visual Dashboarding', category: 'Analytics', currentLevel: 40, requiredLevel: 80, gap: 40, priority: 'Critical' },
+    { name: 'Business Requirements (BRD/FRD)', category: 'Domain', currentLevel: 55, requiredLevel: 85, gap: 30, priority: 'Medium' },
+    { name: 'Stakeholder Communication', category: 'Soft Skills', currentLevel: 60, requiredLevel: 90, gap: 30, priority: 'Medium' },
+    { name: 'Financial & KPI Analysis', category: 'Finance', currentLevel: 45, requiredLevel: 80, gap: 35, priority: 'Critical' },
+    { name: 'Tally Prime & Ledger Accounting', category: 'Finance Operations', currentLevel: 40, requiredLevel: 75, gap: 35, priority: 'Medium' }
   ];
 
   const roleLearningModules: RoleLearningModule[] = [
@@ -190,17 +240,28 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     stepsCount: 8
   });
 
-  const [projectStepProgress, setProjectStepProgress] = useState<number>(2);
+  const [projectStepProgress, setProjectStepProgress] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('vcorp_project_step');
+      return saved ? Number(saved) : 0;
+    } catch {
+      return 0;
+    }
+  });
 
   const completeProjectStep = (stepNum: number) => {
-    setProjectStepProgress(prev => Math.max(prev, stepNum));
+    setProjectStepProgress(prev => {
+      const next = Math.max(prev, stepNum);
+      localStorage.setItem('vcorp_project_step', String(next));
+      return next;
+    });
   };
 
   const [aiManagerMessages, setAiManagerMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; timestamp: string }>>([
     {
       sender: 'ai',
-      text: `Hello! I am your Senior Manager for ${targetRole} at ${selectedCompany}. I am here to review your workspace deliverables, guide you through Excel formulas, SQL queries, and prepare you for client presentations. What are you currently working on?`,
-      timestamp: '10:00 AM'
+      text: `Hello! I am your Senior Practice Director for ${targetRole} at ${selectedCompany}. I am here to review your workspace deliverables, guide you through Excel formulas, SQL queries, and prepare you for corporate readiness. What questions can I answer for you today?`,
+      timestamp: 'Just now'
     }
   ]);
 
@@ -214,13 +275,13 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       let reply = `Great question regarding your ${targetRole} work for ${selectedCompany}. Let's break this down systematically.`;
       const lower = msg.toLowerCase();
       if (lower.includes('excel') || lower.includes('formula') || lower.includes('sum')) {
-        reply = `For your Excel model, use =SUM(B2:B4) for subtotaling revenue, and calculate Gross Margin using =(Revenue - COGS) / Revenue. Make sure to format cells as percentages and validate in the Interactive Workspace!`;
+        reply = `For your Excel model, use =SUM(E2:E5) for subtotaling revenue, and calculate Gross Margin using =(Revenue - Cost) / Revenue. Validate this in the Interactive Workstation!`;
       } else if (lower.includes('sql') || lower.includes('query')) {
-        reply = `In SQL, to group high-value customers, write: SELECT customer_id, SUM(amount) AS total_spend FROM transactions GROUP BY customer_id HAVING SUM(amount) > 10000 ORDER BY total_spend DESC; Run this in the Workspace Code Engine!`;
+        reply = `In SQL, use the HAVING clause after GROUP BY to filter groups: SELECT customer_id, SUM(order_amount) FROM corporate_transactions GROUP BY customer_id HAVING SUM(order_amount) >= 250000; Run this in the PostgreSQL Terminal!`;
       } else if (lower.includes('tally') || lower.includes('ledger') || lower.includes('debit')) {
-        reply = `For Tally voucher entry, record Debit against the incoming asset (e.g. Bank/Cash) and Credit against the income or capital ledger with clear narration. Check the Tally view in Workspace!`;
+        reply = `For Tally voucher entry, record Debit against the incoming asset (e.g. Bank/Cash) and Credit against the revenue or capital ledger.`;
       } else {
-        reply = `I have logged your update into ${selectedCompany} project tracking. Keep refining your deliverables in the Workspace and ensure your STAR structured presentation is ready for our standup!`;
+        reply = `I have logged your question into ${selectedCompany} project tracking. Keep working through your active internship sprints and recruitment rounds!`;
       }
 
       setAiManagerMessages(prev => [
@@ -230,42 +291,62 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, 600);
   };
 
-  const [internshipStatus, setInternshipStatus] = useState<InternshipState>({
-    status: 'In Progress',
-    currentWeek: 3,
-    totalWeeks: 8,
-    completedWeeks: 2,
-    weeklyTasks: [
-      { week: 1, title: 'Corporate Orientation & Environment Setup', description: 'Understand enterprise tools, compliance standards, and workflow architecture.', completed: true },
-      { week: 2, title: 'Exploratory Data Cleaning & Baseline Analysis', description: 'Clean raw transaction dataset and validate data types in Excel and SQL.', completed: true },
-      { week: 3, title: 'Core Modeling & KPI Formulation', description: 'Build mathematical and financial models to calculate profitability margins.', completed: false },
-      { week: 4, title: 'Power BI Dashboard Visualizer', description: 'Build interactive dashboards for cross-regional executive reporting.', completed: false },
-      { week: 5, title: 'Mid-Term Deliverable Review with Mentor', description: 'Present findings to AI Senior Manager and incorporate critical feedback.', completed: false },
-      { week: 6, title: 'Cross-Functional Team Collaboration', description: 'Work alongside squad teammates to integrate multi-department metrics.', completed: false },
-      { week: 7, title: 'STAR Viva & Stakeholder Presentation', description: 'Conduct mock presentation defending recommendations against leadership inquiries.', completed: false },
-      { week: 8, title: 'Capstone Finalization & Credential Issuance', description: 'Publish final artifacts to Credential Vault and unlock certificate of completion.', completed: false }
-    ]
+  const [internshipStatus, setInternshipStatus] = useState<InternshipState>(() => {
+    try {
+      const saved = localStorage.getItem('vcorp_internship_status');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.completedWeeks === 2 && (parsed.totalWeeks === 8 || parsed.weeklyTasks?.length === 8)) {
+          localStorage.setItem('vcorp_internship_status', JSON.stringify(DEFAULT_CLEAN_INTERNSHIP));
+          return DEFAULT_CLEAN_INTERNSHIP;
+        }
+        return parsed;
+      }
+      return DEFAULT_CLEAN_INTERNSHIP;
+    } catch {
+      return DEFAULT_CLEAN_INTERNSHIP;
+    }
   });
 
   const submitInternshipWeekTask = (weekNum: number) => {
-    setInternshipStatus(prev => ({
-      ...prev,
-      completedWeeks: Math.max(prev.completedWeeks, weekNum),
-      weeklyTasks: prev.weeklyTasks.map(w => w.week === weekNum ? { ...w, completed: true } : w)
-    }));
+    setInternshipStatus(prev => {
+      const updated = {
+        ...prev,
+        completedWeeks: Math.max(prev.completedWeeks, weekNum),
+        currentWeek: Math.min(prev.totalWeeks, weekNum + 1),
+        weeklyTasks: prev.weeklyTasks.map(w => w.week === weekNum ? { ...w, completed: true } : w)
+      };
+      localStorage.setItem('vcorp_internship_status', JSON.stringify(updated));
+      return updated;
+    });
   };
 
-  const [credentials, setCredentials] = useState<Array<{ id: string; title: string; date: string }>>([
-    { id: 'bdg_01', title: `${selectedCompany} Orientation Verified`, date: 'Aug 2026' },
-    { id: 'bdg_02', title: `${targetRole} Advanced Excel Specialist`, date: 'Aug 2026' },
-    { id: 'bdg_03', title: 'Corporate Cognitive Aptitude Honors', date: 'Aug 2026' },
-    { id: 'bdg_04', title: 'Enterprise SQL Master', date: 'Aug 2026' }
-  ]);
+  const [credentials, setCredentials] = useState<Array<{ id: string; title: string; date: string }>>(() => {
+    try {
+      const saved = localStorage.getItem('vcorp_credentials');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(b => b.id === 'bdg_01' || b.id === 'bdg_02')) {
+          localStorage.setItem('vcorp_credentials', JSON.stringify([]));
+          return [];
+        }
+        return parsed;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
 
   const addBadge = (badge: { id: string; title: string }) => {
-    if (!credentials.some(b => b.id === badge.id)) {
-      setCredentials(prev => [...prev, { id: badge.id, title: badge.title, date: 'Aug 2026' }]);
-    }
+    setCredentials(prev => {
+      if (!prev.some(b => b.id === badge.id)) {
+        const updated = [...prev, { id: badge.id, title: badge.title, date: 'Verified' }];
+        localStorage.setItem('vcorp_credentials', JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
   };
 
   return (

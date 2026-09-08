@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export const CompaniesPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, addXp, updateReadinessComponent } = useAuth();
   const {
     selectedCompany,
     targetRole,
@@ -275,6 +275,7 @@ export const CompaniesPage: React.FC = () => {
 
     if (isEligible) {
       completeRound(1, score, feedback);
+      addXp(100);
     }
     setRoundInProgress(false);
     setRoundResult({ passed: isEligible, score, feedback });
@@ -295,6 +296,9 @@ export const CompaniesPage: React.FC = () => {
 
     if (passed) {
       completeRound(2, calculatedScore, feedback);
+      addXp(100);
+      updateReadinessComponent('aptitude', calculatedScore);
+      updateReadinessComponent('logicalReasoning', calculatedScore);
       addBadge({ id: 'badge_aptitude', title: 'Cognitive Aptitude Honors' });
     }
     setRoundInProgress(false);
@@ -317,6 +321,8 @@ export const CompaniesPage: React.FC = () => {
 
     if (passed) {
       completeRound(3, calculatedScore, feedback);
+      addXp(100);
+      updateReadinessComponent('skills', calculatedScore);
       addBadge({ id: 'badge_domain', title: `${targetRole} Technical Certified` });
     }
     setRoundInProgress(false);
@@ -336,6 +342,8 @@ export const CompaniesPage: React.FC = () => {
 
     if (passed) {
       completeRound(4, score, feedback);
+      addXp(100);
+      updateReadinessComponent('verbalAbility', score);
     }
     setRoundInProgress(false);
     setRoundResult({ passed, score, feedback });
@@ -356,6 +364,8 @@ export const CompaniesPage: React.FC = () => {
 
     if (passed) {
       completeRound(5, score, feedback);
+      addXp(150);
+      updateReadinessComponent('problemSolving', score);
     }
     setRoundInProgress(false);
     setRoundResult({ passed, score, feedback });
@@ -374,6 +384,9 @@ export const CompaniesPage: React.FC = () => {
 
     if (passed) {
       completeRound(6, score, feedback);
+      addXp(150);
+      updateReadinessComponent('aiInterview', score);
+      updateReadinessComponent('communication', score);
       addBadge({ id: 'badge_star', title: 'STAR Viva Master' });
     }
     setRoundInProgress(false);
@@ -383,6 +396,8 @@ export const CompaniesPage: React.FC = () => {
   const handleAcceptOffer = () => {
     setOfferAccepted(true);
     completeRound(7, 100, `Corporate Onboarding Complete! Welcome to ${selectedCompany} as an official ${targetRole}.`);
+    addXp(200);
+    updateReadinessComponent('teamwork', 100);
     addBadge({ id: 'badge_onboarded', title: `${selectedCompany} Onboarded Professional` });
     setRoundResult({
       passed: true,

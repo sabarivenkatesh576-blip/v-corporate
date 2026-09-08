@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCareer } from '../context/CareerContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -12,11 +12,14 @@ import {
   ArrowRight,
   CheckCircle2,
   Building2,
-  Code
+  Code,
+  Edit2,
+  Check,
+  X
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile, readiness, updateFullName } = useAuth();
   const {
     selectedCompany,
     targetRole,
@@ -24,8 +27,27 @@ export const DashboardPage: React.FC = () => {
     currentRoleInfo,
     activeProject,
     roleSkills,
-    credentials
+    credentials,
+    internshipStatus,
+    hiringRounds
   } = useCareer();
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(user?.fullName || 'Candidate');
+
+  useEffect(() => {
+    if (user?.fullName) setEditedName(user.fullName);
+  }, [user]);
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      updateFullName(editedName.trim());
+    }
+    setIsEditingName(false);
+  };
+
+  const realScore = readiness?.overallScore ?? profile?.careerReadinessScore ?? 0;
+  const completedRoundsCount = hiringRounds.filter(r => r.completed).length;
 
   return (
     <div className="space-y-6">
@@ -35,11 +57,52 @@ export const DashboardPage: React.FC = () => {
           <span className="px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/30 text-xs font-semibold">
             Target: {selectedCompany} • {targetRole}
           </span>
-          <h1 className="text-2xl font-extrabold text-white">
-            Welcome back, {user?.fullName || 'Student'}
-          </h1>
+          <div className="flex items-center gap-3">
+            {isEditingName ? (
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="px-3 py-1 text-lg font-bold text-white bg-slate-950 border border-sky-500 rounded-lg focus:outline-none"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveName}
+                  className="p-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white"
+                  title="Save Name"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setEditedName(user?.fullName || 'Candidate');
+                    setIsEditingName(false);
+                  }}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400"
+                  title="Cancel"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
+                <span>Welcome back, <span className="text-sky-400">{user?.fullName || 'Candidate'}</span></span>
+                <button
+                  onClick={() => {
+                    setEditedName(user?.fullName || 'Candidate');
+                    setIsEditingName(true);
+                  }}
+                  className="p-1 rounded-lg text-slate-500 hover:text-sky-400 hover:bg-slate-800/80 transition"
+                  title="Click to edit your name"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+              </h1>
+            )}
+          </div>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Your career ecosystem is fully customized for <strong className="text-sky-400">{targetRole}</strong> recruitment and experiential learning at <strong className="text-white">{selectedCompany}</strong>.
+            Your career ecosystem is configured for <strong className="text-sky-400">{targetRole}</strong> recruitment and experiential learning at <strong className="text-white">{selectedCompany}</strong>.
           </p>
         </div>
 
@@ -48,24 +111,44 @@ export const DashboardPage: React.FC = () => {
             to="/style-manager"
             className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700"
           >
-            <Sparkles className="w-4 h-4 text-purple-400" /> AI Manager Cabin
+            <Sparkles className="w-4 h-4 text-purple-400" /> AI Mentor Cabin
           </Link>
           <Link
-            to="/workspace"
+            to="/internships"
             className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
           >
-            Open Workspace <ArrowRight className="w-3.5 h-3.5" />
+            Internship Workstation <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Real Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4.5">
         {[
-          { label: 'Role Readiness Score', value: '86%', icon: TrendingUp, color: 'text-emerald-400' },
-          { label: 'Verified Badges', value: `${credentials.length} Badges`, icon: Award, color: 'text-sky-400' },
-          { label: 'Active Capstone', value: activeProject?.title || 'In Progress', icon: Code, color: 'text-amber-400' },
-          { label: 'Recruitment Drives', value: '4 Eligible', icon: Briefcase, color: 'text-indigo-400' }
+          {
+            label: 'Career Readiness Score',
+            value: realScore > 0 ? `${realScore}%` : '0% (Start Test)',
+            icon: TrendingUp,
+            color: realScore >= 70 ? 'text-emerald-400' : realScore > 0 ? 'text-sky-400' : 'text-slate-400'
+          },
+          {
+            label: 'Earned Verified Badges',
+            value: `${credentials.length} Badges`,
+            icon: Award,
+            color: credentials.length > 0 ? 'text-sky-400' : 'text-slate-400'
+          },
+          {
+            label: 'Internship Sprint Slices',
+            value: `${internshipStatus.completedWeeks} / ${internshipStatus.totalWeeks} Completed`,
+            icon: Code,
+            color: internshipStatus.completedWeeks > 0 ? 'text-emerald-400' : 'text-amber-400'
+          },
+          {
+            label: 'Recruitment Selection',
+            value: completedRoundsCount > 0 ? `${completedRoundsCount} / 7 Rounds Cleared` : 'Round 1 Open',
+            icon: Briefcase,
+            color: completedRoundsCount > 0 ? 'text-indigo-400' : 'text-slate-400'
+          }
         ].map((m, i) => (
           <div key={i} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
             <div className="flex items-center justify-between">
@@ -98,7 +181,7 @@ export const DashboardPage: React.FC = () => {
               <div key={sk.name} className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
                 <div>
                   <div className="font-bold text-white">{sk.name}</div>
-                  <div className="text-slate-400 text-[11px]">Required: {sk.requiredLevel}% · Current: {sk.currentLevel}%</div>
+                  <div className="text-slate-400 text-[11px]">Required: {sk.requiredLevel}% · Current Baseline: {sk.currentLevel}%</div>
                 </div>
                 <span className={`px-2 py-0.5 rounded font-semibold text-[10px] ${sk.priority === 'Critical' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}`}>
                   {sk.priority}
@@ -113,22 +196,23 @@ export const DashboardPage: React.FC = () => {
           <h3 className="text-sm font-bold text-white">Career Acceleration Zones</h3>
           <div className="space-y-2">
             {[
+              { title: 'Virtual Internship', path: '/internships', desc: '4-Week live practical workstation sprints' },
               { title: 'AI Mock Interview', path: '/interview', desc: 'STAR evaluation with score report' },
               { title: 'Resume Analyzer', path: '/resume', desc: 'ATS score vs target role' },
-              { title: 'Virtual Internship', path: '/internships', desc: '8-week experiential roadmap' },
-              { title: 'Conference Room', path: '/meetings', desc: 'Standup & client presentations' },
-              { title: 'Project Squads', path: '/teams', desc: 'Collaborate with team members' }
-            ].map((z, idx) => (
+              { title: 'Companies & Rounds', path: '/companies', desc: '7 hiring rounds with live tests' },
+              { title: 'Placement Drive Center', path: '/placement', desc: 'Upcoming recruitment schedules' },
+              { title: 'Credential Wallet', path: '/credentials', desc: 'Verifiable earned certificates & badges' }
+            ].map((nav, i) => (
               <Link
-                key={idx}
-                to={z.path}
-                className="p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500/60 hover:bg-slate-850 block transition space-y-0.5"
+                key={i}
+                to={nav.path}
+                className="p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800/80 flex items-center justify-between text-xs transition group"
               >
-                <div className="text-xs font-bold text-white flex items-center justify-between">
-                  <span>{z.title}</span>
-                  <ArrowRight className="w-3 h-3 text-sky-400" />
+                <div>
+                  <div className="font-semibold text-white group-hover:text-sky-400 transition">{nav.title}</div>
+                  <div className="text-[11px] text-slate-400">{nav.desc}</div>
                 </div>
-                <div className="text-[11px] text-slate-400">{z.desc}</div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400 transition" />
               </Link>
             ))}
           </div>

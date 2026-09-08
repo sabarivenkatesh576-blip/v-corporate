@@ -6,14 +6,11 @@ import {
   Lock,
   Mail,
   ArrowRight,
-  Sparkles,
   Shield,
   User,
   KeyRound,
   Check,
-  Copy,
-  Building2,
-  CheckCircle2
+  Copy
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -21,6 +18,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Initial Pre-filled Credentials
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('demo@vcorp.local');
   const [password, setPassword] = useState('Demo@12345');
   const [error, setError] = useState('');
@@ -32,7 +30,7 @@ export const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, fullName.trim() || undefined);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to sign in. Please verify your credentials.');
@@ -45,9 +43,11 @@ export const LoginPage: React.FC = () => {
     if (type === 'student') {
       setEmail('demo@vcorp.local');
       setPassword('Demo@12345');
+      if (!fullName) setFullName('Candidate');
     } else {
       setEmail('admin@vcorp.local');
       setPassword('Admin@12345');
+      setFullName('Dr. Sarah Jenkins');
     }
   };
 
@@ -201,7 +201,7 @@ export const LoginPage: React.FC = () => {
               <div className="w-full border-t border-slate-800"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-slate-900 px-2 text-slate-500 font-bold">Standard Sign In</span>
+              <span className="bg-slate-900 px-2 text-slate-500 font-bold">Sign In with Custom Profile</span>
             </div>
           </div>
 
@@ -212,6 +212,25 @@ export const LoginPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Your Full Name
+                </label>
+                <span className="text-[10px] text-sky-400 font-medium">Shown on Dashboard</span>
+              </div>
+              <div className="relative">
+                <User className="h-4 w-4 text-slate-500 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="e.g. Aravind Kumar / Priya Sharma"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:border-sky-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
                 Corporate Email ID
@@ -251,7 +270,7 @@ export const LoginPage: React.FC = () => {
               disabled={loading}
               className="w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 py-3 px-4 text-xs font-bold text-white hover:from-sky-500 hover:to-indigo-500 disabled:opacity-50 transition shadow-lg shadow-sky-500/20 mt-2"
             >
-              <span>{loading ? 'Authenticating...' : 'Sign In with Entered Credentials'}</span>
+              <span>{loading ? 'Authenticating...' : 'Sign In to Workspace'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>

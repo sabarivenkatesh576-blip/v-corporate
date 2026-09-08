@@ -38,7 +38,7 @@ interface AtsValidationResult {
 }
 
 export const ResumePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, addXp, updateReadinessComponent } = useAuth();
   const { selectedCompany, targetRole, roleSkills } = useCareer();
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -196,6 +196,11 @@ export const ResumePage: React.FC = () => {
         recommendations,
         atsOptimizedText
       });
+
+      updateReadinessComponent('resume', overallScore);
+      if (overallScore >= 70) {
+        addXp(150);
+      }
     }, 1000);
   };
 

@@ -86,7 +86,7 @@ const INTERVIEW_STAGES = [
 ];
 
 export const MockInterviewPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, addXp, updateReadinessComponent } = useAuth();
   const { selectedCompany, targetRole, addBadge } = useCareer();
 
   const [interviewActive, setInterviewActive] = useState(false);

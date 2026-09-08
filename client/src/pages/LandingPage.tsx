@@ -52,7 +52,7 @@ export const LandingPage: React.FC = () => {
             Start Your Career Journey <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
-            to=",/login"
+            to="/login"
             className="px-8 py-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 text-sm font-semibold transition"
           >
             Student Login
@@ -62,16 +62,16 @@ export const LandingPage: React.FC = () => {
 
         {/* 4 Core Pillars */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-12 w-full text-left">
-          <div className="p-5 rounded-21l bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
             <div className="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
               <Building2 className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-white">15+ LNC Hiring Roadmaps</h3>
-            <p className="text-xs text-slate-400">TRS, Deloitte, EY, KPMG, Infosys simulated 7-round recruitment.</p>
+            <h3 className="text-sm font-bold text-white">15+ MNC Hiring Roadmaps</h3>
+            <p className="text-xs text-slate-400">TCS, Deloitte, EY, KPMG, Infosys simulated 7-round recruitment.</p>
           </div>
 
 
-          <div className="p-5 rounded-21l bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
               <Briefcase className="w-5 h-5" />
             </div>
@@ -80,7 +80,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
 
-          <div className="p-5 rounded-21l bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
             <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -89,7 +89,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
 
-          <div className="p-5 rounded-21l bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
             <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCareer } from '../context/CareerContext';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import {
   Award,
   ShieldCheck,
@@ -8,12 +9,14 @@ import {
   CheckCircle2,
   Sparkles,
   Copy,
-  Building2
+  Building2,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 
 export const CredentialWalletPage: React.FC = () => {
   const { user } = useAuth();
-  const { selectedCompany, targetRole, credentials, addBadge } = useCareer();
+  const { selectedCompany, targetRole, credentials } = useCareer();
   const [copied, setCopied] = useState(false);
 
   const verifyUrl = `${window.location.origin}/verify/cert-vc-2026-001`;
@@ -47,7 +50,7 @@ export const CredentialWalletPage: React.FC = () => {
               Corporate Career Readiness & Role Competency
             </h2>
             <p className="text-xs text-slate-300 mt-1">
-              Issued to: <strong className="text-white">{user?.fullName || 'Student'}</strong> • Role: <strong className="text-sky-400">{targetRole}</strong> at <strong className="text-white">{selectedCompany}</strong>
+              Issued to: <strong className="text-white">{user?.fullName || 'Candidate'}</strong> • Role: <strong className="text-sky-400">{targetRole}</strong> at <strong className="text-white">{selectedCompany}</strong>
             </p>
           </div>
 
@@ -72,26 +75,58 @@ export const CredentialWalletPage: React.FC = () => {
 
       {/* Badges Grid */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-white">Earned Virtual Badges</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5">
-          {credentials.map(b => (
-            <div key={b.id} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold">
-                  Verified
-                </span>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-bold text-white">{b.title}</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Institutional award for {selectedCompany} standards.</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-white">Earned Virtual Badges ({credentials.length})</h3>
+          <span className="text-xs text-slate-400">Earned exclusively by clearing tests & practical sprints</span>
         </div>
+
+        {credentials.length === 0 ? (
+          <div className="p-8 rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-white">No Badges Earned Yet</h4>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Badges are locked to prevent fake progression. Complete your 4-week internship workstation sprints, clear hiring rounds, or pass the STAR AI interview to earn verified credentials!
+              </p>
+            </div>
+            <div className="pt-2 flex items-center justify-center gap-3">
+              <Link
+                to="/internships"
+                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold flex items-center gap-1.5"
+              >
+                Start Week 1 Sprint <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/companies"
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+              >
+                Attempt Round 1 Test
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5">
+            {credentials.map(b => (
+              <div key={b.id} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold">
+                    Verified
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-white">{b.title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">Institutional award for {selectedCompany} standards.</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

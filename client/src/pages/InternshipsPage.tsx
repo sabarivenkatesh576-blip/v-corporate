@@ -80,7 +80,7 @@ interface ChatMessage {
 }
 
 export const InternshipsPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, addXp, updateReadinessComponent } = useAuth();
   const {
     selectedCompany,
     targetRole,
@@ -379,6 +379,21 @@ export const InternshipsPage: React.FC = () => {
         ...prev,
         [selectedWeek]: breakdown
       }));
+
+      addXp(xpAwarded);
+      if (selectedWeek === 1) {
+        updateReadinessComponent('skills', totalScore);
+        updateReadinessComponent('problemSolving', totalScore);
+      } else if (selectedWeek === 2) {
+        updateReadinessComponent('problemSolving', totalScore);
+        updateReadinessComponent('projects', totalScore);
+      } else if (selectedWeek === 3) {
+        updateReadinessComponent('communication', totalScore);
+        updateReadinessComponent('teamwork', totalScore);
+      } else if (selectedWeek === 4) {
+        updateReadinessComponent('projects', totalScore);
+        updateReadinessComponent('problemSolving', totalScore);
+      }
 
       submitInternshipWeekTask(selectedWeek);
 

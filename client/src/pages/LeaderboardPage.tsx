@@ -1,19 +1,30 @@
 import React from 'react';
 import { useCareer } from '../context/CareerContext';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Medal, Award, Sparkles } from 'lucide-react';
+import { Trophy, Medal, Award } from 'lucide-react';
 
 export const LeaderboardPage: React.FC = () => {
-  const { user } = useAuth();
-  const { selectedCompany, targetRole } = useCareer();
+  const { user, profile } = useAuth();
+  const { selectedCompany, targetRole, credentials } = useCareer();
 
-  const leaders = [
-    { rank: 1, name: 'Ananya Sharma', role: targetRole, company: selectedCompany, xp: 4850, badges: 8, isUser: false },
-    { rank: 2, name: user?.fullName || 'You (Active Candidate)', role: targetRole, company: selectedCompany, xp: 4320, badges: 7, isUser: true },
-    { rank: 3, name: 'Rohan Verma', role: targetRole, company: selectedCompany, xp: 3950, badges: 6, isUser: false },
-    { rank: 4, name: 'Priya Patel', role: targetRole, company: selectedCompany, xp: 3620, badges: 5, isUser: false },
-    { rank: 5, name: 'Vikram Mehta', role: targetRole, company: selectedCompany, xp: 3410, badges: 5, isUser: false }
+  const userXp = profile?.xp || 0;
+  const userBadges = credentials.length;
+
+  const cohortList = [
+    { name: 'Ananya Sharma', role: targetRole, company: selectedCompany, xp: 2200, badges: 4, isUser: false },
+    { name: 'Rohan Verma', role: targetRole, company: selectedCompany, xp: 1750, badges: 3, isUser: false },
+    { name: 'Priya Patel', role: targetRole, company: selectedCompany, xp: 1200, badges: 2, isUser: false },
+    { name: 'Vikram Mehta', role: targetRole, company: selectedCompany, xp: 850, badges: 1, isUser: false },
+    { name: user?.fullName || 'You (Candidate)', role: targetRole, company: selectedCompany, xp: userXp, badges: userBadges, isUser: true }
   ];
+
+  // Sort cohort by real XP
+  const leaders = cohortList
+    .sort((a, b) => b.xp - a.xp)
+    .map((item, idx) => ({
+      ...item,
+      rank: idx + 1
+    }));
 
   return (
     <div className="space-y-6">
@@ -42,7 +53,7 @@ export const LeaderboardPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-800/50 text-white">
               {leaders.map(l => (
-                <tr key={l.rank} className={`hover:bg-slate-850/40 ${l.isUser ? 'bg-sky-500/10 font-bold border-l-2 border-sky-500' : ''}`}>
+                <tr key={l.name} className={`hover:bg-slate-850/40 ${l.isUser ? 'bg-sky-500/10 font-bold border-l-2 border-sky-500' : ''}`}>
                   <td className="p-3">
                     <div className="flex items-center gap-1.5">
                       {l.rank === 1 && <Medal className="w-4 h-4 text-amber-400" />}
