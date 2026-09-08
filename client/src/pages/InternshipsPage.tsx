@@ -30,8 +30,11 @@ import {
   Send,
   Calculator,
   Terminal,
-  Copy
+  Copy,
+  Gamepad2,
+  LayoutGrid
 } from 'lucide-react';
+import { InternshipQuestMap3D } from '../components/3d/InternshipQuestMap3D';
 
 interface InternshipSprintChallenge {
   week: number;
@@ -94,6 +97,7 @@ export const InternshipsPage: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationResults, setEvaluationResults] = useState<Record<number, EvaluationBreakdown>>({});
+  const [questViewMode, setQuestViewMode] = useState<'3d' | 'roadmap'>('3d');
 
   // 1. Live Excel Grid State
   const [excelGrid, setExcelGrid] = useState<string[][]>([
@@ -469,6 +473,48 @@ export const InternshipsPage: React.FC = () => {
             {Math.round((internshipStatus.completedWeeks / INTERNSHIP_SPRINTS.length) * 100)}%
           </div>
         </div>
+      </div>
+
+      {/* 3D Gamified Quest Map & View Mode Toggle */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-xs font-extrabold uppercase tracking-wider text-cyan-300">
+              🎮 3D Gamified Internship Sprint Map
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 text-xs">
+            <button
+              onClick={() => setQuestViewMode('3d')}
+              className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
+                questViewMode === '3d'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Gamepad2 className="w-3.5 h-3.5" /> 🎮 3D Quest World
+            </button>
+            <button
+              onClick={() => setQuestViewMode('roadmap')}
+              className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
+                questViewMode === 'roadmap'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> 📋 Quick Selector
+            </button>
+          </div>
+        </div>
+
+        {questViewMode === '3d' && (
+          <InternshipQuestMap3D
+            currentWeek={selectedWeek}
+            completedWeeks={internshipStatus.completedWeeks}
+            onSelectStation={(weekNum) => setSelectedWeek(weekNum)}
+          />
+        )}
       </div>
 
       {/* Week Selector Roadmap */}

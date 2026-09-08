@@ -28,15 +28,15 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Companies (15+ MNCs)', path: '/companies', icon: Building2 },
-    { label: 'Placement Cell', path: '/placement', icon: Briefcase },
-    { label: 'Internships', path: '/internships', icon: Compass },
+    { label: 'Placement Cell (3D Arena)', path: '/placement', icon: Briefcase, is3D: true },
+    { label: 'Internships (3D Sprints)', path: '/internships', icon: Compass, is3D: true },
+    { label: 'Virtual Office (3D Campus)', path: '/virtual-office', icon: Building2, is3D: true },
     { label: 'AI Manager & Mentor', path: '/style-manager', icon: Sparkles },
     { label: 'Resume Analyzer', path: '/resume', icon: FileText },
     { label: 'Skill Gap & Map', path: '/skill-gap', icon: Target },
     { label: 'Learning Paths', path: '/learning', icon: BookOpen },
     { label: 'Assessments (600+)', path: '/assessments', icon: CheckCircle },
     { label: 'AI Mock Interview', path: '/interview', icon: Mic },
-    { label: 'Virtual Office (9 Zones)', path: '/virtual-office', icon: Building2 },
     { label: 'Projects (200+)', path: '/projects', icon: FolderKanban },
     { label: 'Project Workspace', path: '/workspace', icon: Code },
     { label: 'Squads & Teams', path: '/teams', icon: Users },
@@ -59,15 +59,22 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center space-x-3 rounded-lg px-3 py-2 text-xs font-medium transition ${
+                `flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition ${
                   isActive
                     ? 'bg-sky-500/15 text-sky-400 border border-sky-500/30 shadow-sm font-semibold'
                     : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'
                 }`
               }
             >
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <div className="flex items-center space-x-3 truncate">
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{item.label}</span>
+              </div>
+              {(item as any).is3D && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-sm shrink-0">
+                  3D
+                </span>
+              )}
             </NavLink>
           );
         })}

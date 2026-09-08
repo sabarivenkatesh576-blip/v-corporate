@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/three": "^0.185.4",
     "axios": "^1.7.5",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
@@ -19,7 +20,8 @@
     "react-router-dom": "^6.26.1",
     "recharts": "^2.12.7",
     "socket.io-client": "^4.7.5",
-    "tailwind-merge": "^2.5.2"
+    "tailwind-merge": "^2.5.2",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",

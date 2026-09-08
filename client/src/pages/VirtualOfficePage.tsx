@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCareer } from '../context/CareerContext';
 import { Link } from 'react-router-dom';
 import {
@@ -11,133 +11,155 @@ import {
   Briefcase,
   CheckCircle,
   Award,
-  ArrowRight
+  ArrowRight,
+  Gamepad2,
+  LayoutGrid
 } from 'lucide-react';
+import { CorporateCampus3D } from '../components/3d/CorporateCampus3D';
 
 export const VirtualOfficePage: React.FC = () => {
   const { selectedCompany, targetRole } = useCareer();
+  const [viewMode, setViewMode] = useState<'3d' | 'grid'>('3d');
 
   const zones = [
     {
-      id: 'reception',
-      name: 'Corporate Reception',
-      desc: 'Welcome desk, company profiles, and orientation guides.',
-      icon: Building2,
-      path: '/companies',
-      tag: 'Orientation'
+      id: 'placement',
+      name: 'Placement Arena & Recruitment Hub',
+      desc: 'Interactive 3D campus drive pavilions, company eligibility checks, and live offer drive challenges.',
+      icon: Briefcase,
+      path: '/placement',
+      tag: 'Hiring Drives'
+    },
+    {
+      id: 'internship',
+      name: 'Virtual Internship Lab',
+      desc: '4-Week corporate simulation sprints in SQL, Excel, and FRD studios with docked AI Co-Pilot.',
+      icon: Award,
+      path: '/internships',
+      tag: 'Experiential Sprints'
     },
     {
       id: 'manager',
-      name: 'AI Manager Cabin',
-      desc: 'Chat with your Senior Manager for deliverables & reviews.',
+      name: 'AI Corporate Director Cabin',
+      desc: 'Chat with your Senior Practice Director Dr. Alistair Vance for deliverables & reviews.',
       icon: Sparkles,
       path: '/style-manager',
-      tag: 'Mentoring'
+      tag: 'Executive Mentoring'
     },
     {
       id: 'workspace',
-      name: 'Project Workspace',
-      desc: 'Live Excel spreadsheets, Power BI metrics, and Tally ledgers.',
+      name: 'Project Workspace & Sandboxes',
+      desc: 'Live Excel spreadsheets, PostgreSQL query runner, and financial modeling tools.',
       icon: Code,
       path: '/workspace',
       tag: 'Practical Work'
     },
     {
-      id: 'training',
-      name: 'Learning & Training Room',
-      desc: 'Skill gap resolution, step-by-step guides, and videos.',
-      icon: BookOpen,
-      path: '/learning',
-      tag: 'Skills'
-    },
-    {
-      id: 'conference',
-      name: 'Conference & Meeting Room',
-      desc: 'Virtual standups, screen sharing, and client presentations.',
+      id: 'interview',
+      name: 'AI Spoken Mock Interview Pod',
+      desc: 'Spoken mock interview with speech-to-text, audio playback, and CEFR grammar grading.',
       icon: Video,
-      path: '/meetings',
-      tag: 'Collaboration'
+      path: '/interview',
+      tag: 'Voice AI'
     },
     {
-      id: 'placement',
-      name: 'Placement & HR Cell',
-      desc: 'Campus drives, eligibility matrix, and offer letters.',
-      icon: Briefcase,
-      path: '/placement',
-      tag: 'Recruitment'
-    },
-    {
-      id: 'assessments',
-      name: 'Assessment Lab (600+)',
-      desc: 'Cognitive aptitude, domain technical, proctoring.',
-      icon: CheckCircle,
-      path: '/assessments',
-      tag: 'Testing'
-    },
-    {
-      id: 'credentials',
-      name: 'Credential Vault',
-      desc: 'Cryptographically signed badges and experience certificates.',
-      icon: Award,
-      path: '/credentials',
-      tag: 'Wallet'
-    },
-    {
-      id: 'break',
-      name: 'Break Area & Squads',
-      desc: 'Team chat, leaderboards, peer squads, and networking.',
-      icon: Users,
-      path: '/teams',
-      tag: 'Networking'
+      id: 'reception',
+      name: 'Corporate Directory & Companies',
+      desc: 'Company orientation guides, culture overviews, and hiring criteria for 9 top enterprises.',
+      icon: Building2,
+      path: '/companies',
+      tag: 'Orientation'
     }
   ];
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-slate-800 pb-5">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Building2 className="w-7 h-7 text-sky-400" />
-          Virtual Corporate Office (9 Zones)
-        </h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Explore the fully interactive virtual corporate environment for <strong className="text-sky-400">{targetRole}</strong> at <strong className="text-white">{selectedCompany}</strong>.
-        </p>
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/30 text-[10px] font-bold">
+              🎮 WebGL Corporate Metaverse
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] font-bold">
+              Host Enterprise: {selectedCompany}
+            </span>
+          </div>
+          <h1 className="text-2xl font-black text-white flex items-center gap-2 mt-1">
+            <Building2 className="w-7 h-7 text-sky-400" />
+            3D Virtual Corporate Campus & Workplace Metaverse
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Navigate the interactive 3D enterprise towers of {selectedCompany}. Explore departments, enter recruitment arenas, and practice deliverables.
+          </p>
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
+          <button
+            onClick={() => setViewMode('3d')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              viewMode === '3d'
+                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/25'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Gamepad2 className="w-4 h-4" />
+            🎮 3D Metaverse View
+          </button>
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              viewMode === 'grid'
+                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/25'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            🏢 Directory Grid
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5">
-        {zones.map(z => {
-          const Icon = z.icon;
-          return (
-            <Link
-              key={z.id}
-              to={z.path}
-              className="p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-sky-500/60 hover:bg-slate-850 transition space-y-3.5 group shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center group-hover:bg-sky-500 group-hover:text-white transition">
-                  <Icon className="w-6 h-6" />
+      {/* 3D Model or Classic Cards */}
+      {viewMode === '3d' ? (
+        <CorporateCampus3D />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {zones.map((zone) => {
+            const Icon = zone.icon;
+            return (
+              <Link
+                key={zone.id}
+                to={zone.path}
+                className="group relative bg-slate-900/80 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-sky-500/10 flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-110 group-hover:bg-sky-500 group-hover:text-white transition-all duration-300">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                      {zone.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-sky-300 transition-colors">
+                    {zone.name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                    {zone.desc}
+                  </p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-[10px] font-semibold">
-                  {z.tag}
-                </span>
-              </div>
 
-              <div>
-                <h3 className="text-base font-extrabold text-white group-hover:text-sky-300 transition">
-                  {z.name}
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  {z.desc}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1 text-xs font-semibold text-sky-400 pt-2">
-                Enter Zone <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+                <div className="flex items-center text-xs font-semibold text-sky-400 group-hover:text-sky-300 pt-2">
+                  <span>Enter Sector</span>
+                  <ArrowRight className="w-4 h-4 ml-1.5 transform group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
